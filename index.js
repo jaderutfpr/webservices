@@ -72,9 +72,11 @@ app.post('/users', async (req, res) => {
 });
 
 app.post('/sentim', async (req, res) => {
+    const { token } = req.body
     const { text, type, polarity } = req.body
 
     try{
+        jwt.verify(token, JWT_SECRET)
         const response = await Sentim.create({
             text,
             type,
@@ -82,9 +84,30 @@ app.post('/sentim', async (req, res) => {
         })
         console.log(response)
     } catch(error) {
-        throw error
+        res.json({ status: 'error', error: 'Usuário Inválido.' })
     }
     res.json({ status: 'ok' })
+});
+
+app.get('/sentim', async (req, res) => {
+    const { token } = req.query
+    const { text } = req.query
+    const regex = new RegExp(text, 'i')
+
+    try{
+        jwt.verify(token, JWT_SECRET)
+        const response = await Sentim.find({ text: { $regex: regex } })
+
+        if(response.length === 0) {
+            res.status(201)
+            return res.json({ status: 'error', error: 'Essa entrada não existe no banco de dados.' })
+        } else {
+            console.log(response)
+            return res.json({ status: 'found', data: response })
+        }
+    } catch(error) {
+        res.json({ status: 'error', error: 'Usuário Inválido.' })
+    }
 });
 
 app.listen(3000);
