@@ -13,7 +13,9 @@ app.use(cors());
 
 const JWT_SECRET = 'randomstuffisthekey'
 
-mongoose.connect('mongodb://localhost:27017/myapi', {
+const uri = process.env.MONGODB_URI;
+
+mongoose.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true
